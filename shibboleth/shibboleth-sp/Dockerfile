@@ -7,7 +7,7 @@ ENV container docker
 # 시스템 패키지 업데이트 및 필수 패키지 설치
 RUN apt update && \
     apt install -y vim apache2 openssl wget unzip nano iputils-ping \
-    software-properties-common curl libxml2-utils cron python3 && \
+    software-properties-common curl libxml2-utils cron python3 dos2unix && \
     add-apt-repository universe
 
 # Shibboleth 저장소 추가 (Ubuntu 24.04 - Noble 지원)
@@ -47,7 +47,7 @@ RUN chown -R _shibd:_shibd /etc/shibboleth && \
 
 ## 실행 스크립트 복사 및 실행 권한 부여
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && dos2unix /entrypoint.sh
 
 # 포트 노출
 EXPOSE 80 443
