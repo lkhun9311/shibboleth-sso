@@ -1,0 +1,107 @@
+<AttributeFilterPolicyGroup
+        xmlns="urn:mace:shibboleth:2.0:afp"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- ✅ 허용할 eduPersonAffiliation 값 정의 -->
+    <PermitValueRule id="eduPersonAffiliationValues" xsi:type="OR">
+        <Rule xsi:type="Value" value="faculty"/>
+        <Rule xsi:type="Value" value="student"/>
+        <Rule xsi:type="Value" value="staff"/>
+        <Rule xsi:type="Value" value="alum"/>
+        <Rule xsi:type="Value" value="member"/>
+        <Rule xsi:type="Value" value="affiliate"/>
+        <Rule xsi:type="Value" value="employee"/>
+        <Rule xsi:type="Value" value="library-walk-in"/>
+    </PermitValueRule>
+
+    <!-- ✅ 조직 범위 확인 규칙 (scoped 속성 검사) -->
+    <PermitValueRule id="ScopingRules" xsi:type="AND">
+        <Rule xsi:type="NOT">
+            <Rule xsi:type="ValueRegex" regex="@"/>
+        </Rule>
+        <Rule xsi:type="ScopeMatchesShibMDScope"/>
+    </PermitValueRule>
+
+    <!-- ✅ 보안이 강화된 속성 필터 정책 -->
+    <AttributeFilterPolicy>
+        <!-- 이 정책은 모든 경우에 적용됨 -->
+        <PolicyRequirementRule xsi:type="ANY"/>
+
+        <!-- affiliation 속성 필터링 (허용된 값만 사용 가능) -->
+        <AttributeRule attributeID="affiliation">
+            <PermitValueRule xsi:type="AND">
+                <RuleReference ref="eduPersonAffiliationValues"/>
+                <RuleReference ref="ScopingRules"/>
+            </PermitValueRule>
+        </AttributeRule>
+
+        <!-- unscoped-affiliation, primary-affiliation도 동일한 정책 적용 -->
+        <AttributeRule attributeID="unscoped-affiliation">
+            <PermitValueRuleReference ref="eduPersonAffiliationValues"/>
+        </AttributeRule>
+        <AttributeRule attributeID="primary-affiliation">
+            <PermitValueRuleReference ref="eduPersonAffiliationValues"/>
+        </AttributeRule>
+
+        <!-- subject-id (사용자의 고유 ID) 확인 -->
+        <AttributeRule attributeID="subject-id">
+            <PermitValueRuleReference ref="ScopingRules"/>
+        </AttributeRule>
+
+        <!-- pairwise-id (SAML 2.0 pairwise ID) 확인 -->
+        <AttributeRule attributeID="pairwise-id">
+            <PermitValueRuleReference ref="ScopingRules"/>
+        </AttributeRule>
+
+        <!-- eppn (eduPersonPrincipalName) 확인 -->
+        <AttributeRule attributeID="eppn">
+            <PermitValueRuleReference ref="ScopingRules"/>
+        </AttributeRule>
+
+        <!-- targeted-id 확인 -->
+        <AttributeRule attributeID="targeted-id">
+            <PermitValueRuleReference ref="ScopingRules"/>
+        </AttributeRule>
+
+        <!-- Persistent ID의 NameQualifier 및 SPNameQualifier 일치 여부 확인 -->
+        <AttributeRule attributeID="persistent-id">
+            <PermitValueRule xsi:type="NameIDQualifierString"/>
+        </AttributeRule>
+
+        <!-- schacHomeOrganization 속성이 유효한 Scope인지 확인 -->
+        <AttributeRule attributeID="schacHomeOrganization">
+            <PermitValueRule xsi:type="ValueMatchesShibMDScope"/>
+        </AttributeRule>
+
+        <!-- ✅ 추가적인 속성 제한 (보안 강화를 위해 특정 그룹만 허용) -->
+
+        <!-- 직원(staff)만 특정 속성 사용 가능 -->
+        <AttributeRule attributeID="employeeNumber">
+            <PermitValueRule xsi:type="Value" value="staff"/>
+        </AttributeRule>
+
+        <AttributeRule attributeID="employeeType">
+            <PermitValueRule xsi:type="Value" value="staff"/>
+        </AttributeRule>
+
+        <!-- 학생(student)만 특정 속성 사용 가능 -->
+        <AttributeRule attributeID="eduCourseMember">
+            <PermitValueRule xsi:type="Value" value="student"/>
+        </AttributeRule>
+
+        <!-- 교수(faculty)만 특정 속성 사용 가능 -->
+        <AttributeRule attributeID="eduPersonEntitlement">
+            <PermitValueRule xsi:type="Value" value="faculty"/>
+        </AttributeRule>
+
+        <!-- 특정 이메일 도메인만 허용 -->
+        <AttributeRule attributeID="mail">
+            <PermitValueRule xsi:type="ValueRegex" regex=".+@example\.edu"/>
+        </AttributeRule>
+
+        <!-- Catch-all: 다른 속성은 기본적으로 허용 -->
+        <AttributeRule attributeID="*" permitAny="true"/>
+
+    </AttributeFilterPolicy>
+
+</AttributeFilterPolicyGroup>

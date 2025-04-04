@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  shibboleth-idp:
+    image: unicon/shibboleth-idp:latest
+    container_name: shibboleth-idp
+    hostname: shibboleth-idp
+    ports:
+      - "443:4443"
+      - "8443:8443"
+    volumes:
+      - ./shibboleth-idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+      - ./shibboleth-idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+      - ./shibboleth-idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+#      - ../shibboleth/shibboleth-idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+#      - ../shibboleth/shibboleth-idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+#      - ../shibboleth/shibboleth-idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+    environment:
+      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+      - JETTY_MAX_HEAP=2048m
+      - TZ=Asia/Seoul
+
+  shibboleth-sp:
+    build:
+      context: ./shibboleth-sp
+      dockerfile: Dockerfile
+    container_name: shibboleth-sp
+    hostname: shibboleth-sp
+    privileged: true
+    depends_on:
+      - shibboleth-idp
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "380:80"
+      - "3443:443"
+    volumes:
+      - ./shibboleth/test/shibboleth-idp/customized-shibboleth-idp/credentials/idp-cert.pem:/etc/ssl/certs/idp-cert.pem
+
+  tomcat-server:
+    image: tomcat:latest
+    container_name: tomcat-server
+    hostname: tomcat-server
+    ports:
+      - "8080:8080"

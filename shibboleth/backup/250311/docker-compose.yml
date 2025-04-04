@@ -1,0 +1,369 @@
+#version: "3.8"
+#services:
+#  shibboleth-idp:
+#    image: unicon/shibboleth-idp:latest
+##    container_name: shibboleth-idp
+#    container_name: shibboleth-idp
+#    hostname: shibboleth-idp
+#    ports:
+#      - "4443:4443"       # 브라우저 TLS 통신 (호스트의 443 포트를 컨테이너의 4443 포트에 매핑)
+#      - "8443:8443"      # 백채널 TLS 통신
+#    volumes:
+#      - ../shibboleth/idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+#      - ../shibboleth/idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+#      - ../shibboleth/idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+#    environment:
+#      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_MAX_HEAP=2048m
+#    networks:
+#      shibboleth-net:
+#        aliases:
+#          - idp
+#
+#  shibboleth-sp:
+#    image: jefferyb/shibboleth-sp
+#    container_name: shibboleth-sp
+#    hostname: shibboleth-sp
+#    depends_on:
+#      - shibboleth-idp
+#    environment:
+#      - HOSTNAME=localhost.example
+#      - SERVICE_TO_PROJECT=tomcat-server
+#      - SERVICE_PORT=8080
+#      - IDP_ENTITY_ID=https://localhost.example:4443/idp/shibboleth
+##      - IDP_METADATA_URL=https://localhost.example:4443/idp/metadata.xml
+#      - IDP_METADATA_URL=https://localhost.example:4443/idp/shibboleth
+#      - SUPPORT_EMAIL=root@localhost
+##      - SHIB_METADATA_BACKUP_URL=https://localhost.example:4443/idp/metadata.xml
+#      - SHIB_METADATA_BACKUP_URL=https://localhost.example:4443/idp/shibboleth
+#      - SHIB_DOWNLOAD_METADATA=true
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./sp/etc/apache2/ssl:/etc/apache2/ssl
+#      - ./sp/etc/shibboleth:/etc/shibboleth
+#      - ./sp/etc/apache2/sites-available:/etc/apache2/sites-available
+#      - ./sp/etc/apache2/conf/apache2.conf:/etc/apache2/apache2.conf
+#    networks:
+#      shibboleth-net:
+#        aliases:
+#          - sp
+#
+#  tomcat-server:
+#    image: tomcat
+#    container_name: tomcat-server
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      shibboleth-net:
+#        aliases:
+#          - tomcat-server
+#
+#networks:
+#  shibboleth-net:
+#    driver: bridge
+
+#version: "3.8"
+#services:
+#  shibboleth-idp:
+#    image: unicon/shibboleth-idp:latest
+#    container_name: shibboleth-idp
+#    hostname: shibboleth-idp
+#    ports:
+#      - "4443:4443" # 브라우저 TLS 통신
+#      - "8443:8443" # 백채널 TLS 통신
+#    volumes:
+#      - ../shibboleth/idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+#      - ../shibboleth/idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+#      - ../shibboleth/idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+#    environment:
+#      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_MAX_HEAP=2048m
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.2  # 고정 IP 설정
+#
+#  shibboleth-sp:
+#    image: jefferyb/shibboleth-sp
+#    container_name: shibboleth-sp
+#    hostname: shibboleth-sp
+#    depends_on:
+#      - shibboleth-idp
+#    environment:
+#      - HOSTNAME=localhost.example
+#      - SERVICE_TO_PROJECT=tomcat-server
+#      - SERVICE_PORT=8080
+#      - IDP_ENTITY_ID=https://localhost.example:4443/idp/shibboleth
+#      - IDP_METADATA_URL=https://localhost.example:4443/idp/shibboleth
+#      - SUPPORT_EMAIL=root@localhost
+#      - SHIB_METADATA_BACKUP_URL=https://localhost.example:4443/idp/shibboleth
+#      - SHIB_DOWNLOAD_METADATA=true
+#      - TZ=Asia/Seoul  # 한국 시간 설정 (필요시 변경)
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./sp/init.sh:/init.sh
+#      - ./sp/etc/apache2/ssl:/etc/apache2/ssl
+#      - ./sp/etc/shibboleth:/etc/shibboleth
+#      - ./sp/etc/apache2/sites-available:/etc/apache2/sites-available
+#      - ./sp/etc/apache2/conf/apache2.conf:/etc/apache2/apache2.conf
+##    entrypoint: ["/bin/bash", "-c", "init.sh"]
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.3  # 고정 IP 설정
+#
+#  tomcat-server:
+#    image: tomcat
+#    container_name: tomcat-server
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.4  # 고정 IP 설정
+#
+#networks:
+#  shibboleth-net:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 172.19.0.0/16  # 서브넷 지정 (172.17.0.x 범위)
+
+#version: "3.8"
+#services:
+#  shibboleth-idp:
+#    image: unicon/shibboleth-idp:latest
+#    container_name: shibboleth-idp
+#    hostname: shibboleth-idp
+#    ports:
+#      - "4443:4443" # 브라우저 TLS 통신
+#      - "8443:8443" # 백채널 TLS 통신
+#    volumes:
+#      - ../shibboleth/idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+#      - ../shibboleth/idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+#      - ../shibboleth/idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+#    environment:
+#      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_MAX_HE#version: "3.8"
+#services:
+#  shibboleth-idp:
+#    image: unicon/shibboleth-idp:latest
+#    container_name: shibboleth-idp
+#    hostname: shibboleth-idp
+#    ports:
+#      - "4443:4443" # 브라우저 TLS 통신
+#      - "8443:8443" # 백채널 TLS 통신
+#    volumes:
+#      - ../shibboleth/idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+#      - ../shibboleth/idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+#      - ../shibboleth/idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+#    environment:
+#      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_BACKCHAP=2048m
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.2  # 고정 IP 설정
+#
+#  shibboleth-sp:
+#    build:
+#      context: ./sp
+#      dockerfile: Dockerfile
+#    container_name: shibboleth-sp
+#    hostname: shibboleth-sp
+#    depends_on:
+#      - shibboleth-idp
+#    environment:
+#      - HOSTNAME=localhost.example
+#      - SERVICE_TO_PROJECT=tomcat-server
+#      - SERVICE_PORT=8080
+#      - IDP_ENTITY_ID=https://localhost.example:4443/idp/shibboleth
+#      - IDP_METADATA_URL=https://localhost.example:4443/idp/shibboleth
+#      - SUPPORT_EMAIL=root@localhost
+#      - SHIB_METADATA_BACKUP_URL=https://localhost.example:4443/idp/shibboleth
+#      - SHIB_DOWNLOAD_METADATA=true
+#      - TZ=Asia/Seoul  # 한국 시간 설정 (필요시 변경)
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./sp/etc/apache2/ssl:/etc/apache2/ssl
+#      - ./sp/etc/shibboleth:/etc/shibboleth
+#      - ./sp/etc/shibboleth/shibboleth2.xml:/etc/shibboleth/shibboleth2.xml
+#      - ./sp/etc/apache2/sites-available:/etc/apache2/sites-available
+#      - ./sp/etc/apache2/conf/apache2.conf:/etc/apache2/apache2.conf
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.3  # 고정 IP 설정
+#
+#  tomcat-server:
+#    image: tomcat
+#    container_name: tomcat-server
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.4  # 고정 IP 설정
+#
+#networks:
+#  shibboleth-net:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 172.19.0.0/16  # 서브넷 지정 (172.17.0.x 범위)
+
+
+#version: "3.8"
+#
+#services:
+#  shibboleth-idp:
+#    image: unicon/shibboleth-idp:latest
+#    container_name: shibboleth-idp
+#    hostname: shibboleth-idp
+#    ports:
+#      - "4443:4443" # 브라우저 TLS 통신
+#      - "8443:8443" # 백채널 TLS 통신
+#    volumes:
+#      - ../shibboleth/idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+#      - ../shibboleth/idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+#      - ../shibboleth/idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+#    environment:
+#      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_MAX_HEAP=2048m
+#      - TZ=Asia/Seoul  # 한국 시간대 설정
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.2  # 고정 IP 설정
+#
+#  shibboleth-sp:
+#    build:
+#      context: ./shibboleth-sp
+#      dockerfile: Dockerfile
+#    container_name: shibboleth-sp
+#    hostname: shibboleth-sp
+#    depends_on:
+#      - shibboleth-idp
+#    environment:
+#      - HOSTNAME=shibboleth-sp
+#      - SERVICE_TO_PROJECT=tomcat-server
+#      - SERVICE_PORT=8080
+#      - TZ=Asia/Seoul
+#    ports:
+#      - "280:80"
+#      - "2443:443"
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.3  # 고정 IP 설정
+#
+#  tomcat-server:
+#    image: tomcat:latest
+#    container_name: tomcat-server
+#    hostname: tomcat-server
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      shibboleth-net:
+#        ipv4_address: 172.19.0.4  # 고정 IP 설정
+#
+#networks:
+#  shibboleth-net:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 172.19.0.0/16  # 서브넷 지정
+
+version: "3.8"
+
+services:
+  shibboleth-idp:
+    image: unicon/shibboleth-idp:latest
+    container_name: shibboleth-idp
+    hostname: shibboleth-idp
+    ports:
+      - "4443:4443"
+      - "8443:8443"
+    volumes:
+      - ../shibboleth/idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+      - ../shibboleth/idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+      - ../shibboleth/idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+    environment:
+      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+      - JETTY_MAX_HEAP=2048m
+      - TZ=Asia/Seoul
+
+  shibboleth-sp:
+    build:
+      context: ./shibboleth-sp
+      dockerfile: Dockerfile
+    container_name: shibboleth-sp
+    hostname: shibboleth-sp
+    privileged: true
+    depends_on:
+      - shibboleth-idp
+    environment:
+      - HOSTNAME=shibboleth-sp
+      - SERVICE_TO_PROJECT=tomcat-server
+      - SERVICE_PORT=8080
+      - TZ=Asia/Seoul
+    ports:
+      - "280:80"
+      - "2443:443"
+
+  tomcat-server:
+    image: tomcat:latest
+    container_name: tomcat-server
+    hostname: tomcat-server
+    ports:
+      - "8080:8080"
+
+#version: "3.8"
+#
+#services:
+#  shibboleth-idp:
+#    image: unicon/shibboleth-idp:latest
+#    container_name: shibboleth-idp
+#    hostname: shibboleth-idp
+#    ports:
+#      - "4443:4443" # 브라우저 TLS 통신
+#      - "8443:8443" # 백채널 TLS 통신
+#    volumes:
+#      - ../shibboleth/idp/customized-shibboleth-idp/credentials:/opt/shibboleth-idp/credentials
+#      - ../shibboleth/idp/customized-shibboleth-idp/conf:/opt/shibboleth-idp/conf
+#      - ../shibboleth/idp/customized-shibboleth-idp/metadata:/opt/shibboleth-idp/metadata
+#    environment:
+#      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+#      - JETTY_MAX_HEAP=2048m
+#      - TZ=Asia/Seoul  # 한국 시간대 설정
+#    network_mode: "host"
+#
+#  shibboleth-sp:
+#    build:
+#      context: ./shibboleth-sp
+#      dockerfile: Dockerfile
+#    container_name: shibboleth-sp
+#    hostname: shibboleth-sp
+#    depends_on:
+#      - shibboleth-idp
+#    environment:
+#      - HOSTNAME=shibboleth-sp
+#      - SERVICE_TO_PROJECT=tomcat-server
+#      - SERVICE_PORT=8080
+#      - TZ=Asia/Seoul
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    network_mode: "host"
+#
+#  tomcat-server:
+#    image: tomcat:latest
+#    container_name: tomcat-server
+#    hostname: tomcat-server
+#    ports:
+#      - "8080:8080"
+#    network_mode: "host"

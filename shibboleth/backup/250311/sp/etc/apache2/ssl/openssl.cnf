@@ -1,0 +1,42 @@
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+x509_extensions    = v3_ext
+prompt            = no
+
+[ req_distinguished_name ]
+C  = KR
+ST = Seoul
+L  = JungGu
+O  = Innogrid
+CN = shibboleth-sp
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ v3_ext ]
+subjectAltName = @alt_names
+basicConstraints = CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+
+[ alt_names ]
+DNS.1 = localhost
+DNS.2 = localhost.example
+DNS.3 = localhost.example.com
+DNS.4 = shibboleth
+DNS.5 = shibboleth-idp
+DNS.6 = shibboleth-sp
+DNS.7 = idp
+DNS.8 = sp
+DNS.9 = tomcat-serverd
+DNS.10 = idp.example.com
+IP.1 = 127.0.0.1
+IP.2 = 172.17.0.1
+IP.4 = 172.20.0.1  # 네트워크 게이트웨이
+IP.5 = 172.20.0.3  # Shibboleth SP 컨테이너 IP
+IP.6 = 172.20.0.4  # IdP 컨테이너 IP (추가됨)
+IP.7 = 172.19.0.2
+IP.8 = 172.19.0.3
+IP.9 = 172.19.0.4

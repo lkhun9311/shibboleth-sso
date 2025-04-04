@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  shibboleth-idp:
+    build:
+      context: shibboleth-idp
+      dockerfile: Dockerfile
+    container_name: shibboleth-idp
+    hostname: shibboleth-idp
+    ports:
+      - "443:4443"
+      - "8443:8443"
+    environment:
+      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=1234
+      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=1234
+      - JETTY_MAX_HEAP=2048m
+      - TZ=Asia/Seoul
+
+  shibboleth-sp:
+    build:
+      context: shibboleth-sp
+      dockerfile: Dockerfile
+    container_name: shibboleth-sp
+    hostname: shibboleth-sp
+    privileged: true
+    depends_on:
+      - shibboleth-idp
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "380:80"
+      - "3443:443"
+
+  tomcat-server:
+    image: tomcat:latest
+    container_name: tomcat-server
+    hostname: tomcat-server
+    ports:
+      - "8080:8080"

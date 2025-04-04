@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shibboleth IdP Test Login</title>
+</head>
+<body>
+<form action="https://localhost.example:4443/idp/profile/SAML2/Redirect/SSO" method="POST">
+    <input type="hidden" name="RelayState" value="test">
+    <input type="hidden" name="SAMLRequest" value="dummy_request">
+    <input type="submit" value="Login to Shibboleth IdP">
+</form>
+</body>
+</html>

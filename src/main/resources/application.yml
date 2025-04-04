@@ -1,0 +1,17 @@
+spring:
+  security:
+    saml2:
+      relyingparty:
+        registration:
+          shibboleth:
+            identityprovider:
+              metadata-uri: "https://idp.example.com/metadata"
+  datasource:
+    url: jdbc:mysql://localhost:3306/shibboleth-poc
+    username: root
+    password: 1676
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
